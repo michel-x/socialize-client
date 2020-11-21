@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import jwtDecode from 'jwt-decode';
 import './App.css';
 import {MuiThemeProvider} from '@material-ui/core';
 import createTheme from '@material-ui/core/styles/createMuiTheme';
 // Components
+import defaultTheme from './utils/theme';
 import Navbar from './components/Navbar';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 // Pages
@@ -10,22 +12,20 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      light: '#33c9dc',
-      main: '#00bcd4',
-      dark: '#0008394',
-      contrastText: '#fff',
-    },
-    secondary: {
-      light: '#ff6333',
-      main: '#ff3d00',
-      dark: '#b22a00',
-      contrastText: '#fff'
-    }
+const theme = createTheme(defaultTheme);
+
+const token = localStorage.FBIdToken;
+let authenticated: boolean = false;
+
+if (token) {
+  const decodedToken: any = jwtDecode(token);
+  if (decodedToken.exp * 1000 < Date.now()) {
+    window.location.href = '/login';
+    authenticated = false;
+  } else {
+    authenticated = true;
   }
-});
+}
 
 export default class App extends Component {
   render() {
