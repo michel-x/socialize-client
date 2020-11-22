@@ -1,11 +1,14 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import {useHistory, Link} from 'react-router-dom';
 import {makeStyles} from '@material-ui/core';
 import AppIcon from '../assets/images/cat.png';
 //MUI stuff
 import {Grid} from '@material-ui/core';
 import {Typography, TextField, Button, CircularProgress} from '@material-ui/core';
-import {login} from '../services/api/authentication';
+// Redux stuff
+import {connect, HandleThunkActionCreator} from 'react-redux';
+import {loginUser} from '../redux/actions/userActions';
+import { initialState, GlobalState } from '../redux/store';
 
 const useStyles = makeStyles(() => ({
     form: {
@@ -38,31 +41,22 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface Props {
-
+    loginUser: HandleThunkActionCreator<typeof loginUser>;
+    user: typeof initialState.user;
+    ui: typeof initialState.ui;
 }
 
-const Login: React.FC<Props> = () => {
+const Login: React.FC<Props> = ({loginUser, ui: {loading, errors}}) => {
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const [errors, setErrors] = useState<{[key: string]: string}>({});
     const classes = useStyles();
     const history = useHistory();
 
     const handleSubmit = useCallback(async (event: React.FormEvent) => {
         event.preventDefault();
-        setLoading(true);
-        const response = await login(email, password);
-        if (response.data) {
-            localStorage.setItem('FBIdToken', response.data);
-            setLoading(false);
-            history.push('/');
-        } else {
-            setErrors({general: response.error?.message!});
-            setLoading(false);
-        }
-    }, [email, password, history]);
+        await loginUser(email, password, history);
+    }, [email, password, history, loginUser]);
 
     return (
         <Grid container className={classes.form}>
@@ -79,8 +73,8 @@ const Login: React.FC<Props> = () => {
                         className={classes.textField} 
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
-                        helperText={errors.generalo}
-                        error={errors.general ? false : false}
+                        helperText={errors?.generalo}
+                        error={errors?.general ? false : false}
                         fullWidth
                     />
 
@@ -92,13 +86,13 @@ const Login: React.FC<Props> = () => {
                         className={classes.textField} 
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
-                        helperText={errors.generalo}
-                        error={errors.general ? false : false}
+                        helperText={errors?.generalo}
+                        error={errors?.general ? false : false}
                         fullWidth
                     />
-                    {errors.general && (
+                    {errors?.general && (
                         <Typography variant="body2" className={classes.customError}>
-                            {errors.general}
+                            {errors?.general}
                         </Typography>
                     )}
                     <Button 
@@ -122,4 +116,13 @@ const Login: React.FC<Props> = () => {
     );
 };
 
-export default Login;
+const mapStateToProps = (state: GlobalState) => ({
+    user: state.user,
+    ui: state.ui
+});
+
+const mapActionsToProps = {
+    loginUser
+};
+
+export default connect(mapStateToProps, mapActionsToProps)(Login);

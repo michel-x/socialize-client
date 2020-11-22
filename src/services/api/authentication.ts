@@ -1,6 +1,5 @@
-import {Response, Error} from './index';
+import {Response, Error, baseUrl} from './index';
 
-const baseUrl = 'http://localhost:5001/socialize-e89ed/us-central1/api';
 
 export const login = async (email: string, password: string): Promise<Response<string>> => {
     try {

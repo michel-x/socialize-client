@@ -1,11 +1,14 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useCallback} from 'react';
 import {useHistory, Link} from 'react-router-dom';
 import {makeStyles} from '@material-ui/core';
 import AppIcon from '../assets/images/cat.png';
+// Redux stuff
+import {connect, HandleThunkActionCreator} from 'react-redux';
+import {signUpUser} from '../redux/actions/userActions';
+import { initialState, GlobalState } from '../redux/store';
 //MUI stuff
 import {Grid} from '@material-ui/core';
 import {Typography, TextField, Button, CircularProgress} from '@material-ui/core';
-import {signup} from '../services/api/authentication';
 
 const useStyles = makeStyles(() => ({
     form: {
@@ -38,33 +41,24 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface Props {
-
+    signUpUser: HandleThunkActionCreator<typeof signUpUser>;
+    user: typeof initialState.user;
+    ui: typeof initialState.ui;
 }
 
-const Signup: React.FC<Props> = () => {
+const Signup: React.FC<Props> = ({signUpUser, ui: {loading, errors}}) => {
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [handle, setHandle] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const [errors, setErrors] = useState<{[key: string]: string | undefined}>({});
     const classes = useStyles();
     const history = useHistory();
 
     const handleSubmit = useCallback(async (event: React.FormEvent) => {
         event.preventDefault();
-        setLoading(true);
-        const response = await signup(email, password, confirmPassword, handle);
-        if (response.data) {
-            localStorage.setItem('FBIdToken', response.data);
-            setLoading(false);
-            history.push('/');
-        } else {
-            setErrors({general: response.error?.message!});
-            setLoading(false);
-        }
-    }, [email, password, confirmPassword, handle, history]);
+        await signUpUser(email, password, confirmPassword, handle, history);
+    }, [email, password, confirmPassword, handle, history, signUpUser]);
 
     return (
         <Grid container className={classes.form}>
@@ -81,8 +75,8 @@ const Signup: React.FC<Props> = () => {
                         className={classes.textField} 
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
-                        helperText={errors.generalo}
-                        error={errors.general ? false : false}
+                        helperText={errors?.generalo}
+                        error={errors?.general ? false : false}
                         fullWidth
                     />
 
@@ -94,8 +88,8 @@ const Signup: React.FC<Props> = () => {
                         className={classes.textField} 
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
-                        helperText={errors.generalo}
-                        error={errors.general ? false : false}
+                        helperText={errors?.generalo}
+                        error={errors?.general ? false : false}
                         fullWidth
                     />
 
@@ -107,8 +101,8 @@ const Signup: React.FC<Props> = () => {
                         className={classes.textField} 
                         value={confirmPassword}
                         onChange={(event) => setConfirmPassword(event.target.value)}
-                        helperText={errors.confirmPassword}
-                        error={errors.general ? false : false}
+                        helperText={errors?.confirmPassword}
+                        error={errors?.general ? false : false}
                         fullWidth
                     />
 
@@ -120,13 +114,13 @@ const Signup: React.FC<Props> = () => {
                         className={classes.textField} 
                         value={handle}
                         onChange={(event) => setHandle(event.target.value)}
-                        helperText={errors.handle}
-                        error={errors.general ? false : false}
+                        helperText={errors?.handle}
+                        error={errors?.general ? false : false}
                         fullWidth
                     />
-                    {errors.general && (
+                    {errors?.general && (
                         <Typography variant="body2" className={classes.customError}>
-                            {errors.general}
+                            {errors?.general}
                         </Typography>
                     )}
                     <Button 
@@ -150,4 +144,9 @@ const Signup: React.FC<Props> = () => {
     );
 };
 
-export default Signup;
+const mapStateToProps = (state: GlobalState) => ({
+    user: state.user,
+    ui: state.ui
+});
+
+export default connect(mapStateToProps, {signUpUser})(Signup);

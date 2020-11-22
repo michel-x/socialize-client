@@ -1,54 +1,6 @@
-import { NoSubstitutionTemplateLiteral } from "typescript";
+export type {Scream, UserDetail, Comment, Like, Notification, User} from '../../redux/types';
 
-export interface Scream {
-    id: string;
-    userHandle: string;
-    createdAt: any
-    body: string;
-    likeCount: number;
-    commentCount: number;
-    userImage?: string;
-}
-
-export interface UserDetail {
-    website: string;
-    bio: string;
-    location: string;
-}
-
-export interface Comment {
-    id: string;
-    userHandle: string;
-    screamId: string;
-    body: string;
-    createdAt: string;
-}
-
-export interface Like {
-    id: string;
-    screamId: string;
-    userHandle: string;
-}
-
-export interface Notification {
-    id: string;
-    recipient: string;
-    sender: string;
-    read: boolean;
-    screamId: string;
-    type: 'like' | 'comment';
-    createdAt: string;
-}
-
-export interface User extends Partial<UserDetail> {
-    id: string;
-    email: string;
-    createdAt: string;
-    handle: string;
-    userId: string;
-    imageUrl: string;
-}
-
+export const baseUrl = 'http://localhost:5001/socialize-e89ed/us-central1/api';
 
 export interface Error {
     code: string | number;
