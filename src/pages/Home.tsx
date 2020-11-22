@@ -2,6 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {Grid} from '@material-ui/core';
 
 import Scream from '../components/Scream';
+import Profile from '../components/Profile';
 
 import {Scream as IScream} from '../services/api';
 import * as screamService from '../services/api/scream';
@@ -33,7 +34,7 @@ const Home: React.FC = () => {
                 {recentScreamsMarkup}
             </Grid>
             <Grid item sm={4} xs={12}>
-                <p>Profile ...</p>
+                <Profile />
             </Grid>
         </Grid>
     )

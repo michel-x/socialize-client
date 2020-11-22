@@ -69,7 +69,7 @@ const Login: React.FC<Props> = ({loginUser, ui: {loading, errors}}) => {
                         id="email" 
                         name="email" 
                         type="email" 
-                        label="email" 
+                        label="Email" 
                         className={classes.textField} 
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
